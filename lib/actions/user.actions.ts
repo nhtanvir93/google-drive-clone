@@ -4,10 +4,16 @@ import { createAdminClient } from "@/lib/appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { Query, Models, ID } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
+import { cookies } from "next/headers";
 
 interface SignUpPayload {
   fullName: string;
   email: string;
+}
+
+interface OTPPayload {
+  accountId: string;
+  otp: string;
 }
 
 export type User = {
@@ -33,7 +39,7 @@ const handleError = (error: unknown, message: string) => {
   throw error;
 };
 
-const sendEmailOTP = async (email: string) => {
+export const sendEmailOTP = async (email: string) => {
   const { account } = await createAdminClient();
 
   try {
@@ -70,3 +76,17 @@ export async function createAccount({
 
   return parseStringify({ accountId });
 }
+
+export const verifyEmailOTP = async ({
+  accountId,
+  otp,
+}: OTPPayload): Promise<{ sessionId: string } | undefined> => {
+  try {
+    const { account } = await createAdminClient();
+    const session = await account.createSession(accountId, otp);
+    (await cookies()).set("appwrite_session", session.secret);
+    return parseStringify({ sessionId: session.$id });
+  } catch (error: unknown) {
+    handleError(error, "Failed to verify OTP");
+  }
+};
