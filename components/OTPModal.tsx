@@ -149,7 +149,7 @@ const OTPModal = ({ accountId, email }: Props) => {
         <AlertDialogFooter>
           <div className="flex w-full flex-col gap-4">
             <AlertDialogAction
-              disabled={otp.length !== 6}
+              disabled={otp.length !== 6 || loading}
               onClick={handleSubmit}
               className="shad-submit-btn h-12"
             >
