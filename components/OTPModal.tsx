@@ -33,6 +33,7 @@ const OTPModal = ({ accountId, email }: Props) => {
   const [open, setOpen] = useState(true);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
   const [timerSec, setTimerSec] = useState(INTERVAL_SECONDS);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -85,17 +86,17 @@ const OTPModal = ({ accountId, email }: Props) => {
   };
 
   const resendOtp = async () => {
-    setLoading(true);
+    setOtpSending(true);
     setErrorMessage("");
     setOtp("");
 
     try {
-      startResendTimer();
       await sendEmailOTP(email);
+      startResendTimer();
     } catch {
       setErrorMessage("Failed to send email OTP");
     } finally {
-      setLoading(false);
+      setOtpSending(false);
     }
   };
 
@@ -173,7 +174,7 @@ const OTPModal = ({ accountId, email }: Props) => {
                   type="button"
                   variant="link"
                   className="pl-1 text-brand"
-                  disabled={timerSec > 0}
+                  disabled={otpSending || timerSec > 0}
                   onClick={resendOtp}
                 >
                   Click to resend

@@ -49,6 +49,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setErrorMessage("");
+    setAccountId("");
 
     try {
       const response = await createAccount({
