@@ -6,6 +6,7 @@ import { Query, Models, ID } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
+import { redirect } from "next/navigation";
 
 interface SignUpPayload {
   fullName: string;
@@ -113,5 +114,18 @@ export const getCurrentUser = async (): Promise<User | null> => {
   } catch (error: unknown) {
     console.error("Failed to fetch logged-in user", error);
     return null;
+  }
+};
+
+export const signOutUser = async () => {
+  const { account } = await createSessionClient();
+
+  try {
+    await account.deleteSession("current");
+    (await cookies()).delete("appwrite-session");
+  } catch (error: unknown) {
+    handleError(error, "Failed to sign out user");
+  } finally {
+    redirect("/sign-in");
   }
 };
