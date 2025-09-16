@@ -85,7 +85,12 @@ export const verifyEmailOTP = async ({
   try {
     const { account } = await createAdminClient();
     const session = await account.createSession(sessionUserId, otp);
-    (await cookies()).set("appwrite-session", session.secret);
+    (await cookies()).set("appwrite-session", session.secret, {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
     return parseStringify({ sessionId: session.$id });
   } catch (error: unknown) {
     handleError(error, "Failed to verify OTP");
