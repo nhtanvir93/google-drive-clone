@@ -7,9 +7,14 @@ import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
+import { email } from "zod";
 
 interface SignUpPayload {
   fullName: string;
+  email: string;
+}
+
+interface SignInPayload {
   email: string;
 }
 
@@ -22,6 +27,7 @@ export type User = {
   fullName: string;
   email: string;
   avatar: string;
+  sessionUserId: string;
 } & Models.Document;
 
 const getUserByEmail = async (email: string) => {
@@ -127,5 +133,23 @@ export const signOutUser = async () => {
     handleError(error, "Failed to sign out user");
   } finally {
     redirect("/sign-in");
+  }
+};
+
+export const signInUser = async ({
+  email,
+}: SignInPayload): Promise<
+  { sessionUserId: string; error?: string } | undefined
+> => {
+  try {
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
+      await sendEmailOTP(email);
+      return parseStringify({ sessionUserId: existingUser.sessionUserId });
+    }
+
+    return parseStringify({ sessionUserId: null, error: "User not found" });
+  } catch (error: unknown) {
+    handleError(error, "Failed to sign in user");
   }
 };

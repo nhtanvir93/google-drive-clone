@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
-import { createAccount } from "@/lib/actions/user.actions";
+import { createAccount, signInUser } from "@/lib/actions/user.actions";
 import OTPModal from "@/components/OTPModal";
 
 type FormType = "sign-in" | "sign-up";
@@ -46,23 +46,50 @@ const AuthForm = ({ type }: { type: FormType }) => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const handleSignIn = async (values: z.infer<typeof formSchema>) => {
+    const response = await signInUser({
+      email: values.email,
+    });
+
+    return response?.sessionUserId;
+  };
+
+  const handleSignUp = async (values: z.infer<typeof formSchema>) => {
+    const response = await createAccount({
+      fullName: values.fullName as string,
+      email: values.email,
+    });
+
+    return response.sessionUserId;
+  };
+
+  const buildFormErrorMessage = () => {
+    setErrorMessage(
+      type === "sign-up"
+        ? "Failed to create an account. Please try again."
+        : "No user found.",
+    );
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage("");
     setSessionUserId("");
 
     try {
-      const response = await createAccount({
-        fullName: values.fullName as string,
-        email: values.email,
-      });
-      setSessionUserId(response.sessionUserId);
+      let sessionUserId;
+
+      if (type === "sign-up") sessionUserId = await handleSignUp(values);
+      else sessionUserId = await handleSignIn(values);
+
+      if (!sessionUserId) buildFormErrorMessage();
+      setSessionUserId(sessionUserId ?? "");
     } catch {
-      setErrorMessage("Failed to create an account. Please try again.");
+      buildFormErrorMessage();
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
