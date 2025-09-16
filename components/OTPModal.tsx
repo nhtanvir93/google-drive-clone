@@ -23,13 +23,13 @@ import { Button } from "@/components/ui/button";
 import { sendEmailOTP, verifyEmailOTP } from "@/lib/actions/user.actions";
 
 interface Props {
-  accountId: string;
+  sessionUserId: string;
   email: string;
 }
 
 const INTERVAL_SECONDS = 60;
 
-const OTPModal = ({ accountId, email }: Props) => {
+const OTPModal = ({ sessionUserId, email }: Props) => {
   const [open, setOpen] = useState(true);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -107,7 +107,7 @@ const OTPModal = ({ accountId, email }: Props) => {
     setErrorMessage("");
 
     try {
-      const session = await verifyEmailOTP({ accountId, otp });
+      const session = await verifyEmailOTP({ sessionUserId, otp });
       if (session?.sessionId) router.push("/");
     } catch {
       setErrorMessage("Failed to verify otp");

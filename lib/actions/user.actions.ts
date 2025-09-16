@@ -1,10 +1,11 @@
 "use server";
 
-import { createAdminClient } from "@/lib/appwrite";
+import { createAdminClient, createSessionClient } from "@/lib/appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { Query, Models, ID } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
+import { avatarPlaceholderUrl } from "@/constants";
 
 interface SignUpPayload {
   fullName: string;
@@ -12,7 +13,7 @@ interface SignUpPayload {
 }
 
 interface OTPPayload {
-  accountId: string;
+  sessionUserId: string;
   otp: string;
 }
 
@@ -53,11 +54,11 @@ export const sendEmailOTP = async (email: string) => {
 export async function createAccount({
   fullName,
   email,
-}: SignUpPayload): Promise<{ accountId: string }> {
+}: SignUpPayload): Promise<{ sessionUserId: string }> {
   const existingUser = await getUserByEmail(email);
-  const accountId = await sendEmailOTP(email);
 
-  if (!accountId) throw new Error("Failed to send email OTP");
+  const sessionUserId = await sendEmailOTP(email);
+  if (!sessionUserId) throw new Error("Failed to send email OTP");
 
   if (!existingUser) {
     const { databases } = await createAdminClient();
@@ -68,25 +69,44 @@ export async function createAccount({
       {
         fullName,
         email,
-        avatar:
-          "https://static.vecteezy.com/system/resources/thumbnails/036/594/092/small_2x/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg",
+        avatar: avatarPlaceholderUrl,
+        sessionUserId,
       },
     );
   }
 
-  return parseStringify({ accountId });
+  return parseStringify({ sessionUserId });
 }
 
 export const verifyEmailOTP = async ({
-  accountId,
+  sessionUserId,
   otp,
 }: OTPPayload): Promise<{ sessionId: string } | undefined> => {
   try {
     const { account } = await createAdminClient();
-    const session = await account.createSession(accountId, otp);
-    (await cookies()).set("appwrite_session", session.secret);
+    const session = await account.createSession(sessionUserId, otp);
+    (await cookies()).set("appwrite-session", session.secret);
     return parseStringify({ sessionId: session.$id });
   } catch (error: unknown) {
     handleError(error, "Failed to verify OTP");
+  }
+};
+
+export const getCurrentUser = async (): Promise<User | null> => {
+  try {
+    const { account, databases } = await createSessionClient();
+
+    const result = await account.get();
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersTableId,
+      [Query.equal("sessionUserId", [result.$id])],
+    );
+
+    if (users.total <= 0) return null;
+    return parseStringify(users.documents[0]);
+  } catch (error: unknown) {
+    console.error("Failed to fetch logged-in user", error);
+    return null;
   }
 };

@@ -35,7 +35,7 @@ const authFormSchema = (type: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [accountId, setAccountId] = useState("");
+  const [sessionUserId, setSessionUserId] = useState("");
 
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -49,14 +49,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setErrorMessage("");
-    setAccountId("");
+    setSessionUserId("");
 
     try {
       const response = await createAccount({
         fullName: values.fullName as string,
         email: values.email,
       });
-      setAccountId(response.accountId);
+      setSessionUserId(response.sessionUserId);
     } catch {
       setErrorMessage("Failed to create an account. Please try again.");
     } finally {
@@ -143,8 +143,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
           </div>
         </form>
       </Form>
-      {accountId && (
-        <OTPModal accountId={accountId} email={form.getValues("email")} />
+      {sessionUserId && (
+        <OTPModal
+          sessionUserId={sessionUserId}
+          email={form.getValues("email")}
+        />
       )}
     </>
   );
