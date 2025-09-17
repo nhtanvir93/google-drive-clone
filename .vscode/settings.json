@@ -5,8 +5,8 @@
 
   // ----- ESLint Integration -----
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.fixAll.eslint": true
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   "eslint.validate": [
     "javascript",
@@ -15,6 +15,14 @@
     "typescriptreact",
     "json"
   ],
+
+  // Tailwindcss
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
 
   // Disable Prettier as a standalone formatter
   // (Prettier runs through ESLint with plugin:prettier/recommended)

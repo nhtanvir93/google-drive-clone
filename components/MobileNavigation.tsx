@@ -20,12 +20,20 @@ import { Button } from "@/components/ui/button";
 import { signOutUser } from "@/lib/actions/user.actions";
 
 interface Props {
+  $id: string;
   fullName: string;
   email: string;
   avatar: string;
+  sessionUserId: string;
 }
 
-const MobileNavigation = ({ fullName, email, avatar }: Props) => {
+const MobileNavigation = ({
+  $id,
+  fullName,
+  email,
+  avatar,
+  sessionUserId,
+}: Props) => {
   const pathname = usePathname();
   return (
     <header className="mobile-header">
@@ -58,55 +66,53 @@ const MobileNavigation = ({ fullName, email, avatar }: Props) => {
                 />
                 <div className="sm:hidden lg:block">
                   <p className="subtitle-2 capitalize">{fullName}</p>
-                  <p className="caption">{email}</p>
+                  <p className="caption break-words">{email}</p>
                 </div>
               </div>
               <Separator className="mb-4 bg-light-200/20" />
             </SheetTitle>
-            <SheetDescription>
-              <nav className="mobile-nav">
-                <ul className="mobile-nav-list">
-                  {navItems.map(({ url, name, icon }) => (
-                    <Link key={name} href={url} className="lg:w-full">
-                      <li
+            <nav className="mobile-nav">
+              <ul className="mobile-nav-list">
+                {navItems.map(({ url, name, icon }) => (
+                  <Link key={name} href={url} className="lg:w-full">
+                    <li
+                      className={cn(
+                        "mobile-nav-item",
+                        pathname === url && "shad-active",
+                      )}
+                    >
+                      <Image
+                        src={icon}
+                        alt={name}
+                        width={24}
+                        height={24}
                         className={cn(
-                          "mobile-nav-item",
-                          pathname === url && "shad-active",
+                          "nav-icons",
+                          pathname === url && "nav-icon-active",
                         )}
-                      >
-                        <Image
-                          src={icon}
-                          alt={name}
-                          width={24}
-                          height={24}
-                          className={cn(
-                            "nav-icons",
-                            pathname === url && "nav-icon-active",
-                          )}
-                        />
-                        <p>{name}</p>
-                      </li>
-                    </Link>
-                  ))}
-                </ul>
-              </nav>
-              <Separator className="my-5 bg-light-200/20" />
-              <div className="flex flex-col justify-between gap-5 pb-5">
-                <FileUploader />
-                <Button
-                  type="submit"
-                  className="mobile-sign-out-button"
-                  onClick={() => signOutUser()}
-                >
-                  <Image
-                    src="/assets/icons/logout.svg"
-                    alt="logo"
-                    width={24}
-                    height={24}
-                  />
-                </Button>
-              </div>
-            </SheetDescription>
+                      />
+                      <span>{name}</span>
+                    </li>
+                  </Link>
+                ))}
+              </ul>
+            </nav>
+            <Separator className="my-5 bg-light-200/20" />
+            <div className="flex flex-col justify-between gap-5 pb-5">
+              <FileUploader ownerId={$id} sessionUserId={sessionUserId} />
+              <Button
+                type="submit"
+                className="mobile-sign-out-button"
+                onClick={() => signOutUser()}
+              >
+                <Image
+                  src="/assets/icons/logout.svg"
+                  alt="logo"
+                  width={24}
+                  height={24}
+                />
+              </Button>
+            </div>
           </SheetHeader>
         </SheetContent>
       </Sheet>

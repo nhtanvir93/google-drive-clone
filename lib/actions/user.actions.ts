@@ -2,12 +2,12 @@
 
 import { createAdminClient, createSessionClient } from "@/lib/appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
-import { Query, Models, ID } from "node-appwrite";
+import { Query, ID } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
-import { email } from "zod";
+import { User } from "@/types";
 
 interface SignUpPayload {
   fullName: string;
@@ -22,13 +22,6 @@ interface OTPPayload {
   sessionUserId: string;
   otp: string;
 }
-
-export type User = {
-  fullName: string;
-  email: string;
-  avatar: string;
-  sessionUserId: string;
-} & Models.Document;
 
 const getUserByEmail = async (email: string) => {
   const { databases } = await createAdminClient();

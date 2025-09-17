@@ -4,7 +4,12 @@ import Search from "@/components/Search";
 import FileUploader from "@/components/FileUploader";
 import { signOutUser } from "@/lib/actions/user.actions";
 
-const Header = () => {
+interface Props {
+  userId: string;
+  sessionUserId: string;
+}
+
+const Header = ({ userId, sessionUserId }: Props) => {
   const handleSignOut = async () => {
     "use server";
     await signOutUser();
@@ -14,7 +19,7 @@ const Header = () => {
     <header className="header">
       <Search />
       <div className="header-wrapper">
-        <FileUploader />
+        <FileUploader ownerId={userId} sessionUserId={sessionUserId} />
         <form action={handleSignOut}>
           <Button type="submit" className="sign-out-button">
             <Image
