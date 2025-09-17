@@ -1,0 +1,30 @@
+{
+  // ----- Formatting -----
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+
+  // ----- ESLint Integration -----
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "json"
+  ],
+
+  // Disable Prettier as a standalone formatter
+  // (Prettier runs through ESLint with plugin:prettier/recommended)
+  "prettier.enable": false,
+
+  // ----- UI Preferences (optional) -----
+  "editor.fontFamily": "FiraCode Nerd Font, Consolas, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 16,
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.iconTheme": "vscode-icons",
+  "git.enableSmartCommit": true
+}
