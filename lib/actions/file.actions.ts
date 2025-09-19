@@ -72,6 +72,7 @@ export const uploadFile = async ({
 
 const createQueries = (currentUser: User) => {
   const queries = [
+    Query.select(["*", "owner.fullName"]),
     Query.or([
       Query.equal("owner", [currentUser.$id]),
       Query.contains("users", [currentUser.email]),
@@ -97,6 +98,8 @@ export const getFiles = async (): Promise<
       appwriteConfig.filesTableId,
       queries,
     );
+
+    console.log(files.documents);
 
     return parseStringify(files);
   } catch (error: unknown) {

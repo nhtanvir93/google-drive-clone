@@ -5,19 +5,31 @@ interface Props {
   type: string;
   extension: string;
   url?: string;
+  className?: string;
+  imageClassName?: string;
 }
 
-const Thumbnail = ({ type, extension, url = "" }: Props) => {
+const Thumbnail = ({
+  type,
+  extension,
+  url = "",
+  className,
+  imageClassName,
+}: Props) => {
   const isImage = type === "image" && extension !== "svg";
 
   return (
-    <figure className="thumbnail">
+    <figure className={cn("thumbnail", className)}>
       <Image
         src={isImage ? url : getFileIcon(extension, type)}
         alt="thumbnail"
         width={100}
         height={100}
-        className={cn("size-8 object-contain", isImage && "thumbnail-image")}
+        className={cn(
+          "size-8 object-contain",
+          imageClassName,
+          isImage && "thumbnail-image",
+        )}
       />
     </figure>
   );

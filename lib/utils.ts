@@ -121,3 +121,50 @@ export const constructFileUrl = (bucketFileId: string) => {
 };
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
+
+export const convertFileSize = (sizeInBytes: number, digits?: number) => {
+  if (sizeInBytes < 1024) {
+    return sizeInBytes + " Bytes"; // Less than 1 KB, show in Bytes
+  } else if (sizeInBytes < 1024 * 1024) {
+    const sizeInKB = sizeInBytes / 1024;
+    return sizeInKB.toFixed(digits || 1) + " KB"; // Less than 1 MB, show in KB
+  } else if (sizeInBytes < 1024 * 1024 * 1024) {
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+    return sizeInMB.toFixed(digits || 1) + " MB"; // Less than 1 GB, show in MB
+  } else {
+    const sizeInGB = sizeInBytes / (1024 * 1024 * 1024);
+    return sizeInGB.toFixed(digits || 1) + " GB"; // 1 GB or more, show in GB
+  }
+};
+
+export const formatDateTime = (isoString: string | null | undefined) => {
+  if (!isoString) return "—";
+
+  const date = new Date(isoString);
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const period = hours >= 12 ? "pm" : "am";
+
+  hours = hours % 12 || 12;
+
+  const time = `${hours}:${minutes.toString().padStart(2, "0")}${period}`;
+  const day = date.getDate();
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[date.getMonth()];
+
+  return `${time}, ${day} ${month}`;
+};
