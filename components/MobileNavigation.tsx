@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { avatarPlaceholderUrl, navItems } from "@/constants";
+import { navItems } from "@/constants";
 
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
