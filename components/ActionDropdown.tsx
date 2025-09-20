@@ -23,9 +23,11 @@ import { constructDownloadUrl } from "@/lib/utils";
 import { File } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { renameFile } from "@/lib/actions/file.actions";
+import { usePathname } from "next/navigation";
 
 interface Props {
   file: File;
@@ -44,6 +46,12 @@ const ActionDropdown = ({ file }: Props) => {
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
 
+  const path = usePathname();
+
+  useEffect(() => {
+    setName(file.name);
+  }, [file]);
+
   const closeAllModals = () => {
     setIsModalOpen(false);
     setIsDropdownOpen(false);
@@ -51,7 +59,30 @@ const ActionDropdown = ({ file }: Props) => {
     setName(file.name);
   };
 
-  const handleAction = async () => {};
+  const handleAction = async () => {
+    if (!action) return;
+
+    setIsLoading(true);
+
+    const actions = {
+      rename: async () => {
+        await renameFile({
+          fileId: file.$id,
+          name,
+          path,
+        });
+      },
+    };
+
+    try {
+      await actions[action.value as keyof typeof actions]();
+      closeAllModals();
+    } catch (error: unknown) {
+      console.log(`Error : ${(error as Error).message!}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderDialogContent = () => {
     if (!action) return null;

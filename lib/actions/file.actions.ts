@@ -16,6 +16,12 @@ interface UploadFilePayload {
   path: string;
 }
 
+interface RenameFilePayload {
+  fileId: string;
+  name: string;
+  path: string;
+}
+
 const handleError = (error: unknown, message: string) => {
   console.log(error, message);
   throw error;
@@ -102,5 +108,25 @@ export const getFiles = async (): Promise<
     return parseStringify(files);
   } catch (error: unknown) {
     handleError(error, "Failed to get files");
+  }
+};
+
+export const renameFile = async ({ fileId, name, path }: RenameFilePayload) => {
+  const { databases } = await createAdminClient();
+
+  try {
+    const updatedFile = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesTableId,
+      fileId,
+      {
+        name,
+      },
+    );
+
+    revalidatePath(path);
+    return parseStringify(updatedFile);
+  } catch (error: unknown) {
+    handleError(error, "Failed to rename file");
   }
 };
