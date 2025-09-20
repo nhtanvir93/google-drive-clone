@@ -23,7 +23,7 @@ import { constructDownloadUrl } from "@/lib/utils";
 import { File } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
-import { act, useState } from "react";
+import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
