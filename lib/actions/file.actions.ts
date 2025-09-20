@@ -99,8 +99,6 @@ export const getFiles = async (): Promise<
       queries,
     );
 
-    console.log(files.documents);
-
     return parseStringify(files);
   } catch (error: unknown) {
     handleError(error, "Failed to get files");
