@@ -3,11 +3,9 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import {
@@ -78,7 +76,7 @@ const ActionDropdown = ({ file }: Props) => {
       await actions[action.value as keyof typeof actions]();
       closeAllModals();
     } catch (error: unknown) {
-      console.log(`Error : ${(error as Error).message!}`);
+      console.log(`Error : ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
     }
