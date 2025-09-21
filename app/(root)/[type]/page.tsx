@@ -1,7 +1,8 @@
 import Card from "@/components/Card";
 import Sort from "@/components/Sort";
 import { getFiles } from "@/lib/actions/file.actions";
-import { File } from "@/types";
+import { getCurrentUser } from "@/lib/actions/user.actions";
+import { File, User } from "@/types";
 
 interface Props {
   params: { type: string };
@@ -10,6 +11,7 @@ interface Props {
 const FileList = async ({ params }: Props) => {
   const type = (await params).type;
   const files = await getFiles();
+  const loggedInUser = await getCurrentUser();
 
   return (
     <div className="page-container">
@@ -30,7 +32,11 @@ const FileList = async ({ params }: Props) => {
         <section className="file-list">
           {files.documents.map((file: File) => (
             <h1 key={file.$id} className="h1">
-              <Card key={file.$id} file={file} />
+              <Card
+                key={file.$id}
+                file={file}
+                loggedInUser={loggedInUser as User}
+              />
             </h1>
           ))}
         </section>

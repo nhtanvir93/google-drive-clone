@@ -28,6 +28,12 @@ interface ShareFilePayload {
   path: string;
 }
 
+interface DeletePayload {
+  fileId: string;
+  bucketFileId: string;
+  path: string;
+}
+
 const handleError = (error: unknown, message: string) => {
   console.log(error, message);
   throw error;
@@ -158,5 +164,29 @@ export const updateFileUsers = async ({
     return parseStringify(updatedFile);
   } catch (error: unknown) {
     handleError(error, "Failed to update file users");
+  }
+};
+
+export const deleteFile = async ({
+  fileId,
+  bucketFileId,
+  path,
+}: DeletePayload) => {
+  const { databases, storage } = await createAdminClient();
+
+  try {
+    await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesTableId,
+      fileId,
+    );
+
+    await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
+
+    revalidatePath(path);
+
+    return parseStringify({ status: "success" });
+  } catch (error: unknown) {
+    handleError(error, "Failed to delete file");
   }
 };

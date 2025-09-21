@@ -18,18 +18,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { actionsDropdownItems } from "@/constants";
 import { constructDownloadUrl } from "@/lib/utils";
-import { File } from "@/types";
+import { File, User } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { renameFile, updateFileUsers } from "@/lib/actions/file.actions";
+import {
+  deleteFile,
+  renameFile,
+  updateFileUsers,
+} from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "./ActionsModalContent";
 
 interface Props {
   file: File;
+  loggedInUser: User;
 }
 
 interface ActionType {
@@ -38,7 +43,7 @@ interface ActionType {
   value: string;
 }
 
-const ActionDropdown = ({ file }: Props) => {
+const ActionDropdown = ({ file, loggedInUser }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [action, setAction] = useState<ActionType | null>(null);
@@ -75,6 +80,13 @@ const ActionDropdown = ({ file }: Props) => {
       },
       share: async () => {
         await updateFileUsers({ fileId: file.$id, emails, path });
+      },
+      delete: async () => {
+        await deleteFile({
+          fileId: file.$id,
+          bucketFileId: file.bucketFileId,
+          path,
+        });
       },
     };
 
@@ -150,6 +162,12 @@ const ActionDropdown = ({ file }: Props) => {
               onRemove={handleRemoveUser}
             />
           )}
+          {value === "delete" && (
+            <p className="delete-confirmation">
+              Are you sure you want to delete{` `}
+              <span className="delete-file-name">{file.name}</span>
+            </p>
+          )}
         </DialogHeader>
         {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
@@ -186,6 +204,15 @@ const ActionDropdown = ({ file }: Props) => {
     }
   };
 
+  const hasActionPermission = (action: string) => {
+    const ownerActions = ["rename", "share", "delete"];
+
+    return (
+      !ownerActions.includes(action) ||
+      (ownerActions.includes(action) && loggedInUser.$id === file.owner.$id)
+    );
+  };
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -202,39 +229,42 @@ const ActionDropdown = ({ file }: Props) => {
             {file.name}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {actionsDropdownItems.map((actionItem) => (
-            <DropdownMenuItem
-              key={actionItem.value}
-              className="shad-dropdown-item"
-              onClick={() => handleActionClick(actionItem)}
-            >
-              {actionItem.value === "download" ? (
-                <Link
-                  href={constructDownloadUrl(file.bucketFileId)}
-                  download={file.name}
-                  className="flex items-center gap-2"
+          {actionsDropdownItems.map(
+            (actionItem: ActionType) =>
+              hasActionPermission(actionItem.value) && (
+                <DropdownMenuItem
+                  key={actionItem.value}
+                  className="shad-dropdown-item"
+                  onClick={() => handleActionClick(actionItem)}
                 >
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.value}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </Link>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.label}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </div>
-              )}
-            </DropdownMenuItem>
-          ))}
+                  {actionItem.value === "download" ? (
+                    <Link
+                      href={constructDownloadUrl(file.bucketFileId)}
+                      download={file.name}
+                      className="flex items-center gap-2"
+                    >
+                      <Image
+                        src={actionItem.icon}
+                        alt={actionItem.value}
+                        width={30}
+                        height={30}
+                      />
+                      {actionItem.label}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={actionItem.icon}
+                        alt={actionItem.label}
+                        width={30}
+                        height={30}
+                      />
+                      {actionItem.label}
+                    </div>
+                  )}
+                </DropdownMenuItem>
+              ),
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       {renderDialogContent()}

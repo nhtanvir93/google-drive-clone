@@ -1,4 +1,4 @@
-import { File } from "@/types";
+import { File, User } from "@/types";
 import Link from "next/link";
 import React from "react";
 import Thumbnail from "./Thumbnail";
@@ -8,9 +8,10 @@ import ActionDropdown from "./ActionDropdown";
 
 interface Props {
   file: File;
+  loggedInUser: User;
 }
 
-const Card = ({ file }: Props) => {
+const Card = ({ file, loggedInUser }: Props) => {
   return (
     <Link href={file.url} target="_blank" className="file-card">
       <div className="flex justify-between">
@@ -22,7 +23,7 @@ const Card = ({ file }: Props) => {
           imageClassName="!size-11"
         />
         <div className="flex flex-col items-end justify-between">
-          <ActionDropdown file={file} />
+          <ActionDropdown file={file} loggedInUser={loggedInUser} />
           <p className="body-1">{convertFileSize(file.size)}</p>
         </div>
       </div>
