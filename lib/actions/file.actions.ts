@@ -22,6 +22,12 @@ interface RenameFilePayload {
   path: string;
 }
 
+interface ShareFilePayload {
+  fileId: string;
+  emails: string[];
+  path: string;
+}
+
 const handleError = (error: unknown, message: string) => {
   console.log(error, message);
   throw error;
@@ -128,5 +134,29 @@ export const renameFile = async ({ fileId, name, path }: RenameFilePayload) => {
     return parseStringify(updatedFile);
   } catch (error: unknown) {
     handleError(error, "Failed to rename file");
+  }
+};
+
+export const updateFileUsers = async ({
+  fileId,
+  emails,
+  path,
+}: ShareFilePayload) => {
+  const { databases } = await createAdminClient();
+
+  try {
+    const updatedFile = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesTableId,
+      fileId,
+      {
+        users: emails,
+      },
+    );
+
+    revalidatePath(path);
+    return parseStringify(updatedFile);
+  } catch (error: unknown) {
+    handleError(error, "Failed to update file users");
   }
 };

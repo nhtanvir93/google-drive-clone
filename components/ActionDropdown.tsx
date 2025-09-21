@@ -24,10 +24,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { renameFile } from "@/lib/actions/file.actions";
+import { renameFile, updateFileUsers } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
-import { FileDetails } from "./ActionsModalContent";
-import { fi } from "zod/v4/locales";
+import { FileDetails, ShareInput } from "./ActionsModalContent";
 
 interface Props {
   file: File;
@@ -45,11 +44,13 @@ const ActionDropdown = ({ file }: Props) => {
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
+  const [emails, setEmails] = useState<string[]>(file.users);
 
   const path = usePathname();
 
   useEffect(() => {
     setName(file.name);
+    setEmails(file.users);
   }, [file]);
 
   const closeAllModals = () => {
@@ -72,6 +73,9 @@ const ActionDropdown = ({ file }: Props) => {
           path,
         });
       },
+      share: async () => {
+        await updateFileUsers({ fileId: file.$id, emails, path });
+      },
     };
 
     try {
@@ -81,6 +85,38 @@ const ActionDropdown = ({ file }: Props) => {
       console.log(`Error : ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const filterSameEmails = (emails: string[]): string[] => {
+    const totalEmails = emails.length;
+    const sortedEmails = emails.sort();
+
+    const distinctEmails = [];
+
+    for (let i = 0; i < totalEmails; i++) {
+      const length = sortedEmails[i].length;
+
+      if (
+        i + 1 < totalEmails &&
+        sortedEmails[i] === sortedEmails[i + 1].slice(0, length)
+      )
+        continue;
+
+      distinctEmails.push(sortedEmails[i]);
+    }
+
+    return distinctEmails;
+  };
+
+  const handleRemoveUser = async (removingEmail: string) => {
+    const updatedEmails = emails.filter((email) => email !== removingEmail);
+
+    try {
+      await updateFileUsers({ fileId: file.$id, emails: updatedEmails, path });
+      closeAllModals();
+    } catch {
+      console.log("Failed to share file with users, please try again.");
     }
   };
 
@@ -103,6 +139,17 @@ const ActionDropdown = ({ file }: Props) => {
             />
           )}
           {value === "details" && <FileDetails file={file} />}
+          {value === "share" && (
+            <ShareInput
+              file={file}
+              onInputChange={(newEmails: string[]) => {
+                setEmails((oldEmails) =>
+                  filterSameEmails([...newEmails, ...oldEmails]),
+                );
+              }}
+              onRemove={handleRemoveUser}
+            />
+          )}
         </DialogHeader>
         {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
