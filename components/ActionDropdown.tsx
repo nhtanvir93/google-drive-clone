@@ -106,7 +106,11 @@ const ActionDropdown = ({ file }: Props) => {
             <Button className="modal-cancel-button" onClick={closeAllModals}>
               Cancel
             </Button>
-            <Button onClick={handleAction} className="modal-submit-button">
+            <Button
+              onClick={handleAction}
+              className="modal-submit-button"
+              disabled={isLoading}
+            >
               <p className="capitalize">{value}</p>
               {isLoading && (
                 <Image
