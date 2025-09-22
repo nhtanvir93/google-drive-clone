@@ -74,6 +74,7 @@ const ActionDropdown = ({ file, loggedInUser }: Props) => {
       rename: async () => {
         await renameFile({
           fileId: file.$id,
+          extension: file.extension,
           name,
           path,
         });

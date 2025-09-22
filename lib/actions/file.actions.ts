@@ -18,6 +18,7 @@ interface UploadFilePayload {
 
 interface RenameFilePayload {
   fileId: string;
+  extension: string;
   name: string;
   path: string;
 }
@@ -35,9 +36,9 @@ interface DeletePayload {
 }
 
 interface GetFilePayload {
-  types: FileType[];
-  query: string;
-  sort: string;
+  types?: FileType[];
+  query?: string;
+  sort?: string;
 }
 
 const handleError = (error: unknown, message: string) => {
@@ -102,7 +103,6 @@ const createQueries = (
 ) => {
   const queries = [
     Query.select(["*", "owner.fullName"]),
-    Query.equal("type", types),
     Query.or([
       Query.equal("owner", [currentUser.$id]),
       Query.contains("users", [currentUser.email]),
@@ -115,12 +115,13 @@ const createQueries = (
   );
 
   if (query) queries.push(Query.contains("name", query));
+  if (types.length > 0) queries.push(Query.equal("type", types));
 
   return queries;
 };
 
 export const getFiles = async ({
-  types,
+  types = [],
   sort = "$createdAt-desc",
   query,
 }: GetFilePayload): Promise<Models.DocumentList<FileDocument> | undefined> => {
@@ -144,16 +145,22 @@ export const getFiles = async ({
   }
 };
 
-export const renameFile = async ({ fileId, name, path }: RenameFilePayload) => {
+export const renameFile = async ({
+  fileId,
+  extension,
+  name,
+  path,
+}: RenameFilePayload) => {
   const { databases } = await createAdminClient();
 
   try {
+    const newName = `${name}.${extension}`;
     const updatedFile = await databases.updateDocument(
       appwriteConfig.databaseId,
       appwriteConfig.filesTableId,
       fileId,
       {
-        name,
+        name: newName,
       },
     );
 

@@ -7,21 +7,20 @@ import { File, FileType, User } from "@/types";
 
 interface Props {
   params: { type: string };
-  searchParams?: {
-    query?: string;
-    sort?: string;
+  searchParams: {
+    query: string;
+    sort: string;
   };
 }
 
 const FileList = async ({ searchParams, params }: Props) => {
+  const loggedInUser = await getCurrentUser();
+
   const { type } = await params;
   const types = getFileTypesParams(type) as FileType[];
 
   const { query, sort } = await searchParams;
-
   const files = await getFiles({ types, query, sort });
-
-  const loggedInUser = await getCurrentUser();
 
   return (
     <div className="page-container">
