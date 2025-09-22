@@ -1,5 +1,7 @@
 import { Models } from "node-appwrite";
 
+declare type FileType = "document" | "image" | "video" | "audio" | "other";
+
 export type User = {
   fullName: string;
   email: string;

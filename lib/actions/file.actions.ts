@@ -6,7 +6,7 @@ import { appwriteConfig } from "../appwrite/config";
 import { ID, Query, Models } from "node-appwrite";
 import { constructFileUrl, getFileType, parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
-import { File as FileDocument, User } from "@/types";
+import { File as FileDocument, FileType, User } from "@/types";
 import { getCurrentUser } from "./user.actions";
 
 interface UploadFilePayload {
@@ -32,6 +32,12 @@ interface DeletePayload {
   fileId: string;
   bucketFileId: string;
   path: string;
+}
+
+interface GetFilePayload {
+  types: FileType[];
+  query: string;
+  sort: string;
 }
 
 const handleError = (error: unknown, message: string) => {
@@ -88,21 +94,36 @@ export const uploadFile = async ({
   }
 };
 
-const createQueries = (currentUser: User) => {
+const createQueries = (
+  currentUser: User,
+  types: FileType[],
+  sort: string,
+  query: string,
+) => {
   const queries = [
     Query.select(["*", "owner.fullName"]),
+    Query.equal("type", types),
     Query.or([
       Query.equal("owner", [currentUser.$id]),
       Query.contains("users", [currentUser.email]),
     ]),
   ];
 
+  const [field, order] = sort.split("-");
+  queries.push(
+    order === "desc" ? Query.orderDesc(field) : Query.orderAsc(field),
+  );
+
+  if (query) queries.push(Query.contains("name", query));
+
   return queries;
 };
 
-export const getFiles = async (): Promise<
-  Models.DocumentList<FileDocument> | undefined
-> => {
+export const getFiles = async ({
+  types,
+  sort = "$createdAt-desc",
+  query,
+}: GetFilePayload): Promise<Models.DocumentList<FileDocument> | undefined> => {
   const { databases } = await createAdminClient();
 
   try {
@@ -110,7 +131,7 @@ export const getFiles = async (): Promise<
 
     if (!currentUser) throw new Error("User not found");
 
-    const queries = createQueries(currentUser);
+    const queries = createQueries(currentUser, types, sort, query);
     const files = await databases.listDocuments<FileDocument>(
       appwriteConfig.databaseId,
       appwriteConfig.filesTableId,

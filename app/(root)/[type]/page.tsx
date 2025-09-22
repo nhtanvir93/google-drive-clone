@@ -2,15 +2,25 @@ import Card from "@/components/Card";
 import Sort from "@/components/Sort";
 import { getFiles } from "@/lib/actions/file.actions";
 import { getCurrentUser } from "@/lib/actions/user.actions";
-import { File, User } from "@/types";
+import { getFileTypesParams } from "@/lib/utils";
+import { File, FileType, User } from "@/types";
 
 interface Props {
   params: { type: string };
+  searchParams?: {
+    query?: string;
+    sort?: string;
+  };
 }
 
-const FileList = async ({ params }: Props) => {
-  const type = (await params).type;
-  const files = await getFiles();
+const FileList = async ({ searchParams, params }: Props) => {
+  const { type } = await params;
+  const types = getFileTypesParams(type) as FileType[];
+
+  const { query, sort } = await searchParams;
+
+  const files = await getFiles({ types, query, sort });
+
   const loggedInUser = await getCurrentUser();
 
   return (
