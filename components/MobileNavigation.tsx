@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import FileUploader from "@/components/FileUploader";
 import { Button } from "@/components/ui/button";
 import { signOutUser } from "@/lib/actions/user.actions";
+import Search from "./Search";
 
 interface Props {
   $id: string;
@@ -72,6 +73,7 @@ const MobileNavigation = ({
               </div>
               <Separator className="mb-4 bg-light-200/20" />
             </SheetTitle>
+            <Search />
             <nav className="mobile-nav">
               <ul className="mobile-nav-list">
                 {navItems.map(({ url, name, icon }) => (

@@ -89,14 +89,14 @@ const Search = () => {
                   onClick={() => handleClickItem(file)}
                   className="flex items-center justify-between"
                 >
-                  <div className="flex cursor-pointer items-center gap-4">
+                  <div className="flex w-[2/4] cursor-pointer items-center gap-2">
                     <Thumbnail
                       type={file.type}
                       extension={file.extension}
                       url={file.url}
                       className="size-9 min-w-9"
                     />
-                    <p className="subtitle-2 line-clamp-1 text-light-100">
+                    <p className="subtitle-2 line-clamp-1 text-start text-light-100">
                       {file.name}
                     </p>
                   </div>
