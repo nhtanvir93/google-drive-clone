@@ -75,8 +75,8 @@ const Sidebar = ({ fullName, email, avatar }: Props) => {
           className="sidebar-user-avatar"
         />
         <div className="hidden w-5/6 lg:block">
-          <p className="subtitle-2 capitalize">{fullName}</p>
-          <p className="caption break-words">{email}</p>
+          <p className="subtitle-2 line-clamp-1 capitalize">{fullName}</p>
+          <p className="caption line-clamp-1">{email}</p>
         </div>
       </div>
     </aside>
