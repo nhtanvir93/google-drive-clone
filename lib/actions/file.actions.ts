@@ -154,7 +154,7 @@ export const renameFile = async ({
   const { databases } = await createAdminClient();
 
   try {
-    const newName = `${name}.${extension}`;
+    const newName = `${name.split(".")[0]}.${extension}`;
     const updatedFile = await databases.updateDocument(
       appwriteConfig.databaseId,
       appwriteConfig.filesTableId,
