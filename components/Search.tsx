@@ -48,7 +48,8 @@ const Search = () => {
         `${path}?${buildQueryParamsWithoutKey(searchParams, "query")}`,
       );
     }
-  }, [debounceQuery, path, router, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debounceQuery]);
 
   const handleClickItem = (file: File) => {
     const type = ["video", "audio"].includes(file.type)
