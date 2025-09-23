@@ -2,8 +2,9 @@ import Card from "@/components/Card";
 import Sort from "@/components/Sort";
 import { getFiles } from "@/lib/actions/file.actions";
 import { getCurrentUser } from "@/lib/actions/user.actions";
-import { getFileTypesParams } from "@/lib/utils";
+import { convertFileSize, getFileTypesParams } from "@/lib/utils";
 import { File, FileType, User } from "@/types";
+import { useMemo } from "react";
 
 interface Props {
   params: { type: string };
@@ -22,6 +23,9 @@ const FileList = async ({ searchParams, params }: Props) => {
   const { query, sort } = await searchParams;
   const files = await getFiles({ types, query, sort });
 
+  const totalFileSize =
+    files?.documents?.reduce((sum, file) => sum + file.size, 0) ?? 0;
+
   return (
     <div className="page-container">
       <section className="w-full">
@@ -29,7 +33,7 @@ const FileList = async ({ searchParams, params }: Props) => {
 
         <div className="total-size-section">
           <p className="body-1">
-            Total: <span className="h5">0 MB</span>
+            Total: <span className="h5">{convertFileSize(totalFileSize)}</span>
           </p>
           <div className="sort-container">
             <p className="body-1 hidden text-light-200 sm:block">Sort By:</p>
