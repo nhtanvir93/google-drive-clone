@@ -21,7 +21,10 @@ const Sort = () => {
   };
 
   return (
-    <Select onValueChange={handleSort} defaultValue={sortTypes[0].value}>
+    <Select
+      onValueChange={handleSort}
+      defaultValue={searchParams.get("sort") || sortTypes[0].value}
+    >
       <SelectTrigger className="sort-select">
         <SelectValue placeholder="Sort" />
       </SelectTrigger>

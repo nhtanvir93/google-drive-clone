@@ -9,24 +9,31 @@ import { getFiles } from "@/lib/actions/file.actions";
 import Thumbnail from "./Thumbnail";
 import FormattedDateTime from "./FormattedDateTime";
 import { buildQueryParams, buildQueryParamsWithoutKey } from "@/lib/utils";
+import { useDebounce } from "use-debounce";
 
 const Search = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const path = usePathname();
-
   const searchQuery = searchParams.get("query") || "";
 
-  const [query, setQuery] = useState(searchQuery);
+  const [query, setQuery] = useState("");
+  const [debounceQuery] = useDebounce(query, 300);
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<File[]>([]);
 
   const setTimeoutId = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    if (!searchQuery) {
+      setQuery("");
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
     const searchFiles = async () => {
       try {
-        const files = await getFiles({ query });
+        const files = await getFiles({ query: debounceQuery });
         setResults(files?.documents as File[]);
       } catch {
         setResults([]);
@@ -35,18 +42,15 @@ const Search = () => {
       }
     };
 
-    if (setTimeoutId.current) clearTimeout(setTimeoutId.current);
-
-    if (query.length > 0)
-      setTimeoutId.current = setTimeout(() => searchFiles(), 500);
+    if (query.length > 0) searchFiles();
     else {
+      setOpen(false);
+      setResults([]);
       router.replace(
         `${path}?${buildQueryParamsWithoutKey(searchParams, "query")}`,
       );
-      setOpen(false);
-      setResults([]);
     }
-  }, [query]);
+  }, [debounceQuery]);
 
   const handleClickItem = (file: File) => {
     const type = ["video", "audio"].includes(file.type)

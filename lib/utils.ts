@@ -192,8 +192,8 @@ export const getFileTypesParams = (type: string) => {
 
 export const buildQueryParams = (
   searchParams: ReadonlyURLSearchParams,
-  newKey: string,
-  newValue: string,
+  newKey: string = "",
+  newValue: string = "",
 ) => {
   const queryParams = [`${newKey}=${newValue}`];
 
