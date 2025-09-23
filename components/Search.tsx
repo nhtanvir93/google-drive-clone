@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { File } from "@/types";
@@ -22,8 +22,6 @@ const Search = () => {
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<File[]>([]);
 
-  const setTimeoutId = useRef<NodeJS.Timeout>();
-
   useEffect(() => {
     if (!searchQuery) {
       setQuery("");
@@ -42,7 +40,7 @@ const Search = () => {
       }
     };
 
-    if (query.length > 0) searchFiles();
+    if (debounceQuery.length > 0) searchFiles();
     else {
       setOpen(false);
       setResults([]);
@@ -50,7 +48,7 @@ const Search = () => {
         `${path}?${buildQueryParamsWithoutKey(searchParams, "query")}`,
       );
     }
-  }, [debounceQuery]);
+  }, [debounceQuery, path, router, searchParams]);
 
   const handleClickItem = (file: File) => {
     const type = ["video", "audio"].includes(file.type)

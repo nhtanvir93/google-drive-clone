@@ -4,7 +4,6 @@ import { getFiles } from "@/lib/actions/file.actions";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { convertFileSize, getFileTypesParams } from "@/lib/utils";
 import { File, FileType, User } from "@/types";
-import { useMemo } from "react";
 
 interface Props {
   params: { type: string };

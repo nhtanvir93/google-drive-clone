@@ -217,7 +217,9 @@ export const buildQueryParamsWithoutKey = (
   return queryParams.join("&");
 };
 
-export const getUsageSummary = (totalSpace: any) => {
+export const getUsageSummary = (
+  totalSpace: Record<string, { size: number; latestDate: string | Date }>,
+) => {
   return [
     {
       title: "Documents",
