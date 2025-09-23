@@ -79,25 +79,30 @@ export const ShareInput = ({
             </p>
           </div>
         </div>
-        <ul className="share-users">
-          {file.users.map((email) => (
-            <li key={email} className="flex items-center justify-between gap-2">
-              <p className="subtitle-2">{email}</p>
-              <Button
-                onClick={() => onRemove(email)}
-                className="share-remove-user"
+        {file.users.length > 0 && (
+          <ul className="share-users">
+            {file.users.map((email) => (
+              <li
+                key={email}
+                className="flex items-center justify-between gap-2"
               >
-                <Image
-                  src="/assets/icons/remove.svg"
-                  alt="remove"
-                  width={24}
-                  height={24}
-                  className="remove-icon"
-                />
-              </Button>
-            </li>
-          ))}
-        </ul>
+                <p className="subtitle-2">{email}</p>
+                <Button
+                  onClick={() => onRemove(email)}
+                  className="share-remove-user"
+                >
+                  <Image
+                    src="/assets/icons/remove.svg"
+                    alt="remove"
+                    width={24}
+                    height={24}
+                    className="remove-icon"
+                  />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </>
   );
