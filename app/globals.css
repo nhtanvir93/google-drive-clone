@@ -294,6 +294,9 @@
     .remove-icon {
         @apply aspect-square rounded-full !important;
     }
+    .share-users {
+        @apply remove-scrollbar max-h-[230px] overflow-auto p-2 bg-gray-100 rounded-md;
+    }
 
     /* AuthForm */
     .auth-form {

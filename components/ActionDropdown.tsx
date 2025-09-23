@@ -80,7 +80,12 @@ const ActionDropdown = ({ file, loggedInUser }: Props) => {
         });
       },
       share: async () => {
-        await updateFileUsers({ fileId: file.$id, emails, path });
+        console.log("Emails", [...emails, ...file.users]);
+        await updateFileUsers({
+          fileId: file.$id,
+          emails: [...emails, ...file.users],
+          path,
+        });
       },
       delete: async () => {
         await deleteFile({
@@ -99,27 +104,6 @@ const ActionDropdown = ({ file, loggedInUser }: Props) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const filterSameEmails = (emails: string[]): string[] => {
-    const totalEmails = emails.length;
-    const sortedEmails = emails.sort();
-
-    const distinctEmails = [];
-
-    for (let i = 0; i < totalEmails; i++) {
-      const length = sortedEmails[i].length;
-
-      if (
-        i + 1 < totalEmails &&
-        sortedEmails[i] === sortedEmails[i + 1].slice(0, length)
-      )
-        continue;
-
-      distinctEmails.push(sortedEmails[i]);
-    }
-
-    return distinctEmails;
   };
 
   const handleRemoveUser = async (removingEmail: string) => {
@@ -155,11 +139,7 @@ const ActionDropdown = ({ file, loggedInUser }: Props) => {
           {value === "share" && (
             <ShareInput
               file={file}
-              onInputChange={(newEmails: string[]) => {
-                setEmails((oldEmails) =>
-                  filterSameEmails([...newEmails, ...oldEmails]),
-                );
-              }}
+              onInputChange={setEmails}
               onRemove={handleRemoveUser}
             />
           )}

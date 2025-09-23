@@ -79,7 +79,7 @@ export const ShareInput = ({
             </p>
           </div>
         </div>
-        <ul className="pt-2">
+        <ul className="share-users">
           {file.users.map((email) => (
             <li key={email} className="flex items-center justify-between gap-2">
               <p className="subtitle-2">{email}</p>
