@@ -6,7 +6,7 @@ import { appwriteConfig } from "../appwrite/config";
 import { ID, Query, Models } from "node-appwrite";
 import { constructFileUrl, getFileType, parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
-import { File, File as FileDocument, FileType, User } from "@/types";
+import { File as FileDocument, FileType, User } from "@/types";
 import { getCurrentUser } from "./user.actions";
 
 interface UploadFilePayload {
@@ -231,7 +231,7 @@ export const getTotalSpaceUsed = async () => {
 
     if (!currentUser) throw new Error("User is not authenticated");
 
-    const files = await databases.listDocuments<File>(
+    const files = await databases.listDocuments<FileDocument>(
       appwriteConfig.databaseId,
       appwriteConfig.filesTableId,
       [Query.equal("owner", [currentUser.$id])],

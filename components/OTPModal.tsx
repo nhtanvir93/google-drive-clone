@@ -37,7 +37,7 @@ const OTPModal = ({ sessionUserId, email }: Props) => {
   const [timerSec, setTimerSec] = useState(INTERVAL_SECONDS);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const interval = useRef<number | null>(null);
+  const interval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const router = useRouter();
 

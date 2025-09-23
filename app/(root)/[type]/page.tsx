@@ -6,11 +6,11 @@ import { convertFileSize, getFileTypesParams } from "@/lib/utils";
 import { File, FileType, User } from "@/types";
 
 interface Props {
-  params: { type: string };
-  searchParams: {
+  params: Promise<{ type: string }>;
+  searchParams: Promise<{
     query: string;
     sort: string;
-  };
+  }>;
 }
 
 const FileList = async ({ searchParams, params }: Props) => {
