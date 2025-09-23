@@ -23,9 +23,8 @@ const FileList = async ({ searchParams, params }: Props) => {
   const { query, sort } = await searchParams;
   const files = await getFiles({ types, query, sort });
 
-  const [totalFileSize] = await Promise.all([
-    files?.documents?.reduce((sum, file) => sum + file.size, 0) ?? 0,
-  ]);
+  const totalFileSize =
+    files?.documents?.reduce((sum, file) => sum + file.size, 0) ?? 0;
 
   return (
     <div className="page-container">
