@@ -1,5 +1,6 @@
 import { FileType } from "@/types";
 import { clsx, type ClassValue } from "clsx";
+import { ReadonlyURLSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -187,4 +188,31 @@ export const getFileTypesParams = (type: string) => {
     default:
       return ["document"];
   }
+};
+
+export const buildQueryParams = (
+  searchParams: ReadonlyURLSearchParams,
+  newKey: string,
+  newValue: string,
+) => {
+  const queryParams = [`${newKey}=${newValue}`];
+
+  for (const [key, value] of searchParams.entries()) {
+    if (key !== newKey) queryParams.push(`${key}=${value}`);
+  }
+
+  return queryParams.join("&");
+};
+
+export const buildQueryParamsWithoutKey = (
+  searchParams: ReadonlyURLSearchParams,
+  removingKey: string,
+) => {
+  const queryParams = [];
+
+  for (const [key, value] of searchParams.entries()) {
+    if (key !== removingKey) queryParams.push(`${key}=${value}`);
+  }
+
+  return queryParams.join("&");
 };

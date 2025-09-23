@@ -3,15 +3,17 @@
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { File } from "@/types";
 import { getFiles } from "@/lib/actions/file.actions";
 import Thumbnail from "./Thumbnail";
 import FormattedDateTime from "./FormattedDateTime";
+import { buildQueryParams, buildQueryParamsWithoutKey } from "@/lib/utils";
 
 const Search = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const path = usePathname();
 
   const searchQuery = searchParams.get("query") || "";
 
@@ -38,6 +40,9 @@ const Search = () => {
     if (query.length > 0)
       setTimeoutId.current = setTimeout(() => searchFiles(), 500);
     else {
+      router.replace(
+        `${path}?${buildQueryParamsWithoutKey(searchParams, "query")}`,
+      );
       setOpen(false);
       setResults([]);
     }
@@ -50,7 +55,7 @@ const Search = () => {
 
     setOpen(false);
     setResults([]);
-    router.push(`/${type}?query=${query}`);
+    router.push(`/${type}?${buildQueryParams(searchParams, "query", query)}`);
   };
 
   return (
