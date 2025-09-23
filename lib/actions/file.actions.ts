@@ -1,12 +1,12 @@
 "use server";
 
 import { InputFile } from "node-appwrite/file";
-import { createAdminClient } from "../appwrite";
+import { createAdminClient, createSessionClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { ID, Query, Models } from "node-appwrite";
 import { constructFileUrl, getFileType, parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
-import { File as FileDocument, FileType, User } from "@/types";
+import { File, File as FileDocument, FileType, User } from "@/types";
 import { getCurrentUser } from "./user.actions";
 
 interface UploadFilePayload {
@@ -39,6 +39,7 @@ interface GetFilePayload {
   types?: FileType[];
   query?: string;
   sort?: string;
+  limit?: number;
 }
 
 const handleError = (error: unknown, message: string) => {
@@ -100,6 +101,7 @@ const createQueries = (
   types: FileType[],
   sort: string,
   query: string,
+  limit: number,
 ) => {
   const queries = [
     Query.select(["*", "owner.fullName"]),
@@ -116,6 +118,7 @@ const createQueries = (
 
   if (query) queries.push(Query.contains("name", query));
   if (types.length > 0) queries.push(Query.equal("type", types));
+  if (limit > 0) queries.push(Query.limit(limit));
 
   return queries;
 };
@@ -123,7 +126,8 @@ const createQueries = (
 export const getFiles = async ({
   types = [],
   sort = "$createdAt-desc",
-  query,
+  query = "",
+  limit = 0,
 }: GetFilePayload): Promise<Models.DocumentList<FileDocument> | undefined> => {
   const { databases } = await createAdminClient();
 
@@ -132,7 +136,7 @@ export const getFiles = async ({
 
     if (!currentUser) throw new Error("User not found");
 
-    const queries = createQueries(currentUser, types, sort, query);
+    const queries = createQueries(currentUser, types, sort, query, limit);
     const files = await databases.listDocuments<FileDocument>(
       appwriteConfig.databaseId,
       appwriteConfig.filesTableId,
@@ -216,5 +220,48 @@ export const deleteFile = async ({
     return parseStringify({ status: "success" });
   } catch (error: unknown) {
     handleError(error, "Failed to delete file");
+  }
+};
+
+export const getTotalSpaceUsed = async () => {
+  try {
+    const { databases } = await createSessionClient();
+
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) throw new Error("User is not authenticated");
+
+    const files = await databases.listDocuments<File>(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesTableId,
+      [Query.equal("owner", [currentUser.$id])],
+    );
+
+    const totalSpace = {
+      image: { size: 0, latestDate: "" },
+      document: { size: 0, latestDate: "" },
+      video: { size: 0, latestDate: "" },
+      audio: { size: 0, latestDate: "" },
+      other: { size: 0, latestDate: "" },
+      used: 0,
+      all: 2 * 1024 * 1024 * 1024,
+    };
+
+    files?.documents?.forEach((file) => {
+      const type = file.type as FileType;
+      totalSpace[type].size += file.size;
+      totalSpace.used += file.size;
+
+      if (
+        !totalSpace[type].latestDate ||
+        (totalSpace[type].latestDate &&
+          new Date(file.$updatedAt) > new Date(totalSpace[type].latestDate))
+      )
+        totalSpace[type].latestDate = file.$updatedAt;
+    });
+
+    return parseStringify(totalSpace);
+  } catch (error: unknown) {
+    handleError(error, "Error in calculating total space used");
   }
 };
